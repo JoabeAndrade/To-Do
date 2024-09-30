@@ -1,4 +1,5 @@
 import { Input } from "../../components/Input";
+import { Task } from "../../components/Task";
 import { Container, BackGorundImage, KeyBoard } from "./styles";
 import { Platform } from "react-native";
 
@@ -10,6 +11,7 @@ export function Home() {
       >
         <Container style={{ marginHorizontal: 10 }}>
           <Input />
+          <Task />
         </Container>
       </BackGorundImage>
     </KeyBoard>
