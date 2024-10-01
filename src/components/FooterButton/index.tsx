@@ -11,7 +11,11 @@ import {
 import { Modal, View, Animated, Easing } from "react-native";
 import { AddTask } from "../modal/addTask";
 
-export function FooterButton() {
+interface FooterButtonProps {
+  onAddTask: (task: { title: string; description: string }) => void;
+}
+
+export function FooterButton({ onAddTask }: FooterButtonProps) {
   const [modalVisible, setModalVisible] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
 
@@ -64,7 +68,7 @@ export function FooterButton() {
             alignItems: "center",
           }}
         >
-          <AddTask closeModal={closeModal} />
+          <AddTask closeModal={closeModal} onAddTask={onAddTask} />
         </View>
       </Modal>
     </ContainerFooter>

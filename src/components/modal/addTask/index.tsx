@@ -1,4 +1,5 @@
 import { TextInput, Text, TouchableOpacity } from "react-native";
+import { useState } from "react";
 import {
   TitleCardAdd,
   TopCardAdd,
@@ -13,9 +14,18 @@ import { Feather } from "@expo/vector-icons";
 
 interface AddTaskProps {
   closeModal: () => void;
+  onAddTask: (task: { title: string; description: string }) => void;
 }
 
-export function AddTask({ closeModal }: AddTaskProps) {
+export function AddTask({ closeModal, onAddTask }: AddTaskProps) {
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+
+  const handleAddTask = () => {
+    if (title && description) {
+      onAddTask({ title, description });
+    }
+  };
   return (
     <Containertask>
       <TopCardAdd>
@@ -31,7 +41,11 @@ export function AddTask({ closeModal }: AddTaskProps) {
       </TopCardAdd>
       <TitleCardAdd>
         <Texts>Titulo da Task</Texts>
-        <InputAdd placeholder="Digite um titulo"></InputAdd>
+        <InputAdd
+          placeholder="Digite um titulo"
+          value={title}
+          onChangeText={setTitle}
+        ></InputAdd>
       </TitleCardAdd>
       <DetailsCardAdd>
         <Texts>Detalhes</Texts>
@@ -40,9 +54,11 @@ export function AddTask({ closeModal }: AddTaskProps) {
           placeholder="Digite uma descrição"
           multiline={true}
           numberOfLines={5}
+          value={description}
+          onChangeText={setDescription}
         ></InputAdd>
       </DetailsCardAdd>
-      <ButtonAdd>
+      <ButtonAdd onPress={handleAddTask}>
         <TextButton>Adicionar</TextButton>
       </ButtonAdd>
     </Containertask>

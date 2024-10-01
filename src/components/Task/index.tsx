@@ -8,7 +8,12 @@ import {
 } from "./styles";
 import Feather from "@expo/vector-icons/Feather";
 
-export function Task() {
+interface TaskProps {
+  title: string;
+  description: string;
+}
+
+export function Task({ title, description }: TaskProps) {
   return (
     <ContainerTask>
       <Check>
@@ -16,8 +21,8 @@ export function Task() {
           <Feather name="square" size={35} color="black" />
         </TouchableOpacity>
         <TaskButtonStatus>
-          <TaskTitle>Título Task</TaskTitle>
-          <Text>Descrição da task...</Text>
+          <TaskTitle>{title}</TaskTitle>
+          <Text>{description}</Text>
         </TaskButtonStatus>
       </Check>
       <Favorite>
