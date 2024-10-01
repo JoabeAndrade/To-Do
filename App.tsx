@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { Home } from "./src/screens/Home";
-import {AddTask} from "./src/components/modal/addTask"
+import { AddTask } from "./src/components/modal/addTask";
 import { DeleteAllTasks } from "./src/components/modal/deleteAllTasks";
 import DeleteTask from "./src/components/modal/deleteTask";
 
@@ -11,8 +11,8 @@ export default function App() {
       <Home></Home>
       {/* <AddTask></AddTask> */}
       {/* <DeleteAllTasks></DeleteAllTasks> */}
-      <DeleteTask></DeleteTask>
-      <StatusBar style="auto"/>
+      {/* <DeleteTask></DeleteTask> */}
+      <StatusBar style="auto" />
     </View>
   );
 }

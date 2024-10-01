@@ -10,6 +10,15 @@ export const Container = styled.SafeAreaView`
   padding-top: ${Platform.OS === "android" ? 56 : 0}px;
 `;
 
+export const Footer = styled.View`
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
+  background-color: #cbc1d3;
+`;
+
 export const BackGorundImage = styled(ImageBackground)`
   flex: 1;
   width: 100%;

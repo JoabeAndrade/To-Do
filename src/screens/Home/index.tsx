@@ -1,6 +1,7 @@
+import { FooterButton } from "../../components/FooterButton";
 import { Input } from "../../components/Input";
 import { Task } from "../../components/Task";
-import { Container, BackGorundImage, KeyBoard } from "./styles";
+import { Container, BackGorundImage, KeyBoard, Footer } from "./styles";
 import { Platform } from "react-native";
 
 export function Home() {
@@ -13,6 +14,9 @@ export function Home() {
           <Input />
           <Task />
         </Container>
+        <Footer>
+          <FooterButton />
+        </Footer>
       </BackGorundImage>
     </KeyBoard>
   );
