@@ -19,7 +19,7 @@ export const Footer = styled.View`
   background-color: #cbc1d3;
 `;
 
-export const BackGorundImage = styled(ImageBackground)`
+export const BackgroundImage = styled(ImageBackground)`
   flex: 1;
   width: 100%;
   height: 100%;
