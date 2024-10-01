@@ -1,12 +1,12 @@
 import styled from "styled-components/native";
 
 export const Containertask = styled.View`
+  margin-bottom: 50px;
   width: 85%;
-  height: 430px;
+  height: 400px;
   border-radius: 10px;
   text-align: center;
   background-color: #D9D9D9;
-  flex: 1;
   align-items: center;
 `;
 

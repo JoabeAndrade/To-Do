@@ -3,13 +3,15 @@ import { StyleSheet, Text, View } from "react-native";
 import { Home } from "./src/screens/Home";
 import {AddTask} from "./src/components/modal/addTask"
 import { DeleteAllTasks } from "./src/components/modal/deleteAllTasks";
+import DeleteTask from "./src/components/modal/deleteTask";
 
 export default function App() {
   return (
     <View style={styles.container}>
       <Home></Home>
       {/* <AddTask></AddTask> */}
-      <DeleteAllTasks></DeleteAllTasks>
+      {/* <DeleteAllTasks></DeleteAllTasks> */}
+      <DeleteTask></DeleteTask>
       <StatusBar style="auto"/>
     </View>
   );
