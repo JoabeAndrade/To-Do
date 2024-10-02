@@ -1,9 +1,10 @@
 import styled from "styled-components/native";
 
 export const ContainerInput = styled.View`
+margin-bottom: 15px;
   flex-direction: row;
   background-color: #dbd6df;
-  width: 100%;
+  width: 95%;
   height: 56px;
   border-radius: 28px;
   justify-content: space-between;
