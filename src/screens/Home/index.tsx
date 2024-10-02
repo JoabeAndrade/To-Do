@@ -10,7 +10,7 @@ import {
   Expanded,
   ButtonExpanded,
 } from "./styles";
-import { Platform, View, Text, TouchableOpacity } from "react-native";
+import { Platform, Text, Image, View } from "react-native";
 import { AddTask } from "../../components/modal/addTask";
 
 interface TaskProps {
@@ -31,38 +31,46 @@ export function Home() {
   const toggleTasksVisibility = () => {
     setIsExpanded((prev) => !prev);
   };
+
   return (
     <KeyBoard behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <BackgroundImage
-        source={require("../../assets/img/backgorund/image.jpg")}
-      >
+      <BackgroundImage source={require("../../assets/img/backgorund/image.jpg")}>
         <Container style={{ marginHorizontal: 10 }}>
           <Input />
-          <Expanded>
-            <ButtonExpanded
-              onPress={toggleTasksVisibility}
-              style={{ flexDirection: "row", alignItems: "center" }}
-            >
-              <Text
-                style={{ fontWeight: "bold", fontSize: 18, marginRight: 5 }}
-              >
-                {isExpanded ? "^" : ">"}
-              </Text>
-              <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-                Pendentes {tasks.length}
-              </Text>
-            </ButtonExpanded>
-
-            {isExpanded &&
-              tasks.map((task, index) => (
+          
+          {/* Botão de expansão fixo, fora do contêiner expansível */}
+          <ButtonExpanded
+            onPress={toggleTasksVisibility}
+            style={{ flexDirection: "row", alignItems: "center", marginVertical: 10, height: 50 }}
+          >
+            <Image
+              source={
+                isExpanded
+                  ? require("../../assets/img/ListTask/SetaBaixo.png")
+                  : require("../../assets/img/ListTask/SetaDireita.png")
+              }
+              style={{ width: 40, height: 40 }}
+            />
+            <Text style={{ fontWeight: "bold", fontSize: 18, color: "#fff" }}>
+              Pendentes {tasks.length}
+            </Text>
+          </ButtonExpanded>
+          
+          {/* Area expansível das tasks */}
+          {isExpanded && (
+            <View style={{ maxHeight: 300, overflow: 'scroll' }}>
+              {tasks.map((task, index) => (
                 <Task
                   key={index}
                   title={task.title}
                   description={task.description}
                 />
               ))}
-          </Expanded>
+            </View>
+          )}
+          
         </Container>
+
         <Footer>
           <FooterButton onAddTask={handleAddTask} />
         </Footer>
