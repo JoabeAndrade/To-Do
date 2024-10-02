@@ -4,7 +4,7 @@ export const ContainerTask = styled.View`
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
   border-top-left-radius: 15px;
-  margin-top: 20px;
+  margin-top: 10px;
   width: 100%;
   height: 60px;
   background-color: #cbc1d3;
