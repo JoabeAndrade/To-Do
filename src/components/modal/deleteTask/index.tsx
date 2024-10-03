@@ -3,12 +3,16 @@ import {Container, Header, Recicle, TitleHeader, TitleContent, Delete, Content} 
 import { Feather } from '@expo/vector-icons';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 
-export default function DeleteTask(){
+interface DeleteTaskProps {
+  onClose: () => void;
+}
+
+export default function DeleteTask({onClose}:DeleteTaskProps){
   return(
     <Container>
       <Header>
         <TitleHeader>Titulo da task</TitleHeader>
-        <TouchableOpacity><Feather style={{marginLeft: 'auto'}} name="x" size={24} color="black" ></Feather></TouchableOpacity>
+        <TouchableOpacity onPress={onClose}><Feather style={{marginLeft: 'auto'}} name="x" size={24} color="black" ></Feather></TouchableOpacity>
       </Header>
       <Content>
         <Recicle>
