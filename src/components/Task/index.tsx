@@ -7,10 +7,13 @@ import {
   TaskTitle,
 } from "./styles";
 import Feather from "@expo/vector-icons/Feather";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 interface TaskProps {
   title: string;
   description: string;
+  Handlefavorite?: () => void;
+  favorite?: boolean;
   onComplete?: () => void;
   isCompleted?: boolean;
 }
@@ -18,7 +21,9 @@ interface TaskProps {
 export function Task({
   title,
   description,
+  favorite,
   onComplete,
+  Handlefavorite,
   isCompleted = false,
 }: TaskProps) {
   return (
@@ -46,7 +51,22 @@ export function Task({
       </Check>
       <Favorite>
         <TouchableOpacity>
-          <Feather name="star" size={35} color="black" />
+          {favorite ? (
+            <FontAwesome
+              name="star"
+              size={35}
+              color="yellow"
+              onPress={Handlefavorite}
+            />
+          ) : (
+            !isCompleted &&
+            <Feather
+              name="star"
+              size={35}
+              color="black"
+              onPress={Handlefavorite}
+            />
+          )}
         </TouchableOpacity>
       </Favorite>
     </ContainerTask>
