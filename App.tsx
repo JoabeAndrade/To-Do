@@ -4,7 +4,7 @@ import { Home } from "./src/screens/Home";
 import { Lixeira } from "./src/screens/Lixeira";
 
 const App = () => {
-  return <Lixeira/>;
+  return <AppNavigation/>;
 };
 
 export default App;
