@@ -14,7 +14,12 @@ import { Feather } from "@expo/vector-icons";
 
 interface AddTaskProps {
   closeModal: () => void;
-  onAddTask: (task: { title: string; description: string }) => void;
+  onAddTask: (task: {
+    title: string;
+    description: string;
+    completed: boolean;
+    favorite: boolean;
+  }) => void;
 }
 
 export function AddTask({ closeModal, onAddTask }: AddTaskProps) {
@@ -23,7 +28,8 @@ export function AddTask({ closeModal, onAddTask }: AddTaskProps) {
 
   const handleAddTask = () => {
     if (title && description) {
-      onAddTask({ title, description });
+      onAddTask({ title, description, completed: false, favorite: false });
+      closeModal();
     }
   };
   return (

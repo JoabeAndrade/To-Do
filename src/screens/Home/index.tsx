@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FooterButton } from "../../components/FooterButton";
 import { Input } from "../../components/Input";
 import { Task } from "../../components/Task";
@@ -9,15 +9,20 @@ import {
   Footer,
   ButtonExpanded,
 } from "./styles";
-import { Platform, Text, Image, FlatList } from "react-native";
+import { Platform, Text, Image, FlatList, Button } from "react-native";
 
 interface TaskProps {
   title: string;
   description: string;
+  completed: boolean;
+  favorite: boolean;
 }
 
 export function Home() {
   const [tasks, setTasks] = useState<TaskProps[]>([]);
+  const [tasksConclued, setTasksConclued] = useState<TaskProps[]>([]);
+  const [tasksPending, setTasksPendding] = useState<TaskProps[]>([]);
+
   const [completedTasks, setCompletedTasks] = useState<TaskProps[]>([]);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isCompletedExpanded, setIsCompletedExpanded] =
@@ -27,30 +32,41 @@ export function Home() {
     setTasks([...tasks, newTask]);
   };
 
-  const handleCompleteTask = (taskToToggle: TaskProps) => {
-    // Verifica se a tarefa está na lista de pendentes
-    const isTaskPending = tasks.some(
-      (task) => task.title === taskToToggle.title
-    );
+  useEffect(() => {
+    OrganizarTask();
+  }, [tasks]);
 
-    if (isTaskPending) {
-      // Remove a tarefa da lista de pendentes
-      setTasks((prevTasks) =>
-        prevTasks.filter((task) => task.title !== taskToToggle.title)
-      );
-      // Adiciona a tarefa à lista de concluídas
-      setCompletedTasks((prevCompletedTasks) => [
-        ...prevCompletedTasks,
-        taskToToggle,
-      ]);
-    } else {
-      // Remove a tarefa da lista de concluídas
-      setCompletedTasks((prevCompletedTasks) =>
-        prevCompletedTasks.filter((task) => task.title !== taskToToggle.title)
-      );
-      // Adiciona a tarefa de volta à lista de pendentes
-      setTasks((prevTasks) => [...prevTasks, taskToToggle]);
+
+  const OrganizarTask = () => {
+    var arrConclued: TaskProps[] = [];
+    var arrPending: TaskProps[] = [];
+
+    for (let index = 0; index < tasks.length; index++) {
+      if (tasks[index].completed == true) {
+        arrConclued.push(tasks[index]);
+      } else {
+        arrPending.push(tasks[index]);
+      }
     }
+    setTasksConclued(arrConclued);
+    setTasksPendding(arrPending);
+  };
+
+  const Concluir = (i: number) => {
+    for (let index = 0; index < tasks.length; index++) {
+      if(tasksPending[i].title == tasks[index].title){
+        tasks[index].completed=true;
+      }
+    }    OrganizarTask();
+  };
+
+  const DesConcluir = (i: number) => {
+    for (let index = 0; index < tasks.length; index++) {
+      if(tasksConclued[i].title == tasks[index].title){
+        tasks[index].completed=false;
+      }
+    }
+    OrganizarTask();
   };
 
   const toggleTasksVisibility = () => {
@@ -61,6 +77,26 @@ export function Home() {
     setIsCompletedExpanded((prev) => !prev);
   };
 
+  const Favorito = (i: number) => {
+    var arrConclued: TaskProps[] = [];
+    var arrPending: TaskProps[] = [];
+    var arrtask: TaskProps[] = [];
+
+    
+    tasks[i].favorite = !tasks[i].favorite;
+
+    arrPending = tasksPending;
+    arrConclued = tasksConclued;
+    arrPending = arrPending.sort((a, b) => (a.favorite === b.favorite ? 0 : a.favorite ? -1 : 1));
+    setTasksPendding(tasksPending);
+    arrtask = arrPending.concat(arrConclued);
+    setTasks(arrtask);
+
+
+
+
+  };
+
   return (
     <KeyBoard behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <BackgroundImage
@@ -68,7 +104,6 @@ export function Home() {
       >
         <Container style={{ marginHorizontal: 10 }}>
           <Input />
-
           <ButtonExpanded
             onPress={toggleTasksVisibility}
             style={{
@@ -87,19 +122,24 @@ export function Home() {
               style={{ width: 40, height: 40 }}
             />
             <Text style={{ fontWeight: "bold", fontSize: 18, color: "#fff" }}>
-              Pendentes {tasks.length}
+              Pendentes {tasksPending.length}
             </Text>
           </ButtonExpanded>
 
           {isExpanded && (
             <FlatList
-              data={tasks}
+              data={tasksPending}
               keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
+              renderItem={({ item, index }) => (
                 <Task
                   title={item.title}
                   description={item.description}
-                  onComplete={() => handleCompleteTask(item)}
+                  onComplete={() => Concluir(index)}
+                  favorite={item.favorite}
+                  Handlefavorite={() => {
+                    Favorito(index);
+                  }}
+                  // onComplete={() => handleCompleteTask(item)}
                 />
               )}
               style={{ maxHeight: 300 }}
@@ -124,19 +164,20 @@ export function Home() {
               style={{ width: 40, height: 40 }}
             />
             <Text style={{ fontWeight: "bold", fontSize: 18, color: "#fff" }}>
-              Concluídas {completedTasks.length}
+              Concluídas {tasksConclued.length}
             </Text>
           </ButtonExpanded>
 
           {isCompletedExpanded && (
             <FlatList
-              data={completedTasks}
+              data={tasksConclued}
               keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
+              renderItem={({ item, index }) => (
                 <Task
                   title={item.title}
                   description={item.description}
                   isCompleted={true}
+                  onComplete={() => {DesConcluir(index); console.log(item)}}
                 />
               )}
               style={{ maxHeight: 300 }}

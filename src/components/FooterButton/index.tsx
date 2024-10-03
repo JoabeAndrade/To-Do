@@ -12,7 +12,12 @@ import { Modal, View, Animated, Easing } from "react-native";
 import { AddTask } from "../modal/addTask";
 
 interface FooterButtonProps {
-  onAddTask: (task: { title: string; description: string }) => void;
+  onAddTask: (task: {
+    title: string;
+    description: string;
+    completed: boolean;
+    favorite: boolean;
+  }) => void;
 }
 
 export function FooterButton({ onAddTask }: FooterButtonProps) {
