@@ -30,6 +30,7 @@ export function Lixeira() {
   const [tasks, setTasks] = useState<TaskProps[]>([]);
   const [idDelete, setIdDelete] = useState<string>("");
 
+  //carregar tasks do armazenamento local
   const loadTasks = async () => {
     try {
       const storedTasks = await AsyncStorage.getItem("@tasks");
@@ -41,6 +42,7 @@ export function Lixeira() {
     }
   };
 
+  //salvar mudanças no armazenamento local
   const saveTasks = async () => {
     try {
       await AsyncStorage.setItem("@tasks", JSON.stringify(tasks)); // Armazenar as tasks como string
@@ -49,7 +51,8 @@ export function Lixeira() {
     }
   };
 
-  const saveTasksParam = async (itens:TaskProps) => {
+  //salvar mudanças com parametro(evita problemas causados pelo usestate)
+  const saveTasksParam = async (itens: TaskProps[]) => {
     try {
       await AsyncStorage.setItem("@tasks", JSON.stringify(itens)); // Armazenar as tasks como string
     } catch (error) {
@@ -57,14 +60,18 @@ export function Lixeira() {
     }
   };
 
+  //carregar tasks ao montar tela
   useEffect(() => {
     loadTasks();
   }, []);
 
+  //organizar tasks toda vez que a mesma for modificada
   useEffect(() => {
     OrganizarTask();
   }, [tasks]);
 
+
+  //garaintri que os elementos sejam chamados ao montar tela
   useFocusEffect(
     useCallback(() => {
       loadTasks(); 
@@ -72,21 +79,24 @@ export function Lixeira() {
     }, [])
   );
 
+  //função para abrir modal de opções
   const abrirModalInfo = (i: string) => {
     setInfoModalVisible(true);
     setDeleteAllModalVisible(false);
   };
 
+  //função para abrir modal de deletar turdob
   const abrirModalDeleteAll = () => {
     setDeleteAllModalVisible(true);
     setInfoModalVisible(false);
   };
-
+  //função para fechar modal
   const fecharModal = () => {
     setInfoModalVisible(false);
     setDeleteAllModalVisible(false);
   };
 
+  //deletar taks filtrando todos aqueles que tem titulo diferente
   const deletarTask = (itemTitle: string) => {
     const arrDeletar = tasks.filter((task) => task.title !== idDelete);
     setTasks(arrDeletar);
@@ -94,6 +104,7 @@ export function Lixeira() {
     OrganizarTask(); 
   };
 
+  //trocar item.deleted para false
   const reciclar = (item: string) => {
     for (let i = 0; i < tasks.length; i++) {
       if (tasks[i].title === item) {
@@ -105,6 +116,7 @@ export function Lixeira() {
     }
   };
 
+  //const para barra de pesquisa
   const [searchText, setSearchText] = useState<string>(""); // Novo
   const FilteredTrashTask = tasksTrash.filter(
     (item) =>
@@ -112,6 +124,7 @@ export function Lixeira() {
       item.description.toLowerCase().includes(searchText.toLowerCase())
   );
 
+  //função para organizar as tasks, separando aqueles que tem o .deleted == true
   const OrganizarTask = () => {
     const arrTrash = tasks.filter((task) => task.deleted == true);
 
@@ -119,7 +132,6 @@ export function Lixeira() {
   };
 
   const navigation = useNavigation();
-  console.log(tasksTrash);
   return (
     <Container>
       <Background source={require("../../assets/img/backgorund/image.jpg")}>

@@ -35,16 +35,20 @@ export function Home() {
 
   const navigation = useNavigation();
 
+  //carrgando os dados toda vez que a tela ganha foco
   useFocusEffect(
     useCallback(() => {
-      loadTasks(); // Recarregar os dados quando a tela ganhar foco
+      loadTasks(); 
     }, [])
   );
 
+  //função para adicionar uma nova task no final do array
   const handleAddTask = (newTask: TaskProps) => {
     setTasks([...tasks, newTask]);
   };
 
+
+  //chamada para carregar as tasks do armazenamento local
   const loadTasks = async () => {
     try {
       const storedTasks = await AsyncStorage.getItem("@tasks");
@@ -56,6 +60,8 @@ export function Home() {
     }
   };
 
+
+  //função para salavar no armazenamento local
   const saveTasks = async () => {
     try {
       await AsyncStorage.setItem("@tasks", JSON.stringify(tasks)); // Armazenar as tasks como string
@@ -64,15 +70,23 @@ export function Home() {
     }
   };
 
+
+  //carregar as tasks ao montar tela
   useEffect(() => {
     loadTasks();
   }, []);
 
+
+  //organizar tasks e salvar todas sempre que o array "tasks" mudar
   useEffect(() => {
     OrganizarTask();
     saveTasks();
   }, [tasks]);
 
+
+  //separa em subarray:
+  // concluido = completed == ture && deleted == false
+  // pendente =  completed == false && delete == false 
   const OrganizarTask = () => {
     var arrConclued: TaskProps[] = [];
     var arrPending: TaskProps[] = [];
@@ -91,6 +105,7 @@ export function Home() {
     setTasksPendding(arrPending);
   };
 
+  //conclui task marcando o elemento com o titulo ==. trocar .completed -> true
   const Concluir = (i: number) => {
     for (let index = 0; index < tasks.length; index++) {
       if (tasksPending[i].title == tasks[index].title) {
@@ -101,6 +116,7 @@ export function Home() {
     saveTasks();
   };
 
+  // troca o index de .completed -> true para false
   const DesConcluir = (i: number) => {
     for (let index = 0; index < tasks.length; index++) {
       if (tasksConclued[i].title == tasks[index].title) {
@@ -111,6 +127,7 @@ export function Home() {
     saveTasks();
   };
 
+  //funcao para abrir modal
   const toggleTasksVisibility = () => {
     setIsExpanded((prev) => !prev);
   };
@@ -118,7 +135,7 @@ export function Home() {
   const toggleCompletedTasksVisibility = () => {
     setIsCompletedExpanded((prev) => !prev);
   };
-
+//funcao para ordenar array task de acordo com o favorito
   const Favorito = (i: number) => {
     var arrConclued: TaskProps[] = [];
     var arrPending: TaskProps[] = [];
@@ -136,6 +153,7 @@ export function Home() {
     setTasks(arrtask);
   };
 
+  //funcao para barra de pesquisa nas tasks pendentes
   const [searchText, setSearchText] = useState<string>(""); // Novo
   const filteredPendingTasks = tasksPending.filter(
     (task) =>
@@ -143,18 +161,18 @@ export function Home() {
       task.description.toLowerCase().includes(searchText.toLowerCase())
   );
 
+  //funcao para barra de pesquisa nas tasks concluidas
   const filteredConcludedTasks = tasksConclued.filter(
     (task) =>
       task.title.toLowerCase().includes(searchText.toLowerCase()) ||
       task.description.toLowerCase().includes(searchText.toLowerCase())
   );
 
+  //funcao para levar usuario para pagina de detalhes
   const onTaskPress = (task: TaskProps) => {
     // Passando a tarefa com o tipo correto
     navigation.navigate("Detalhes", { task });
   };
-
-  // Dentro do componente Home
 
 
   return (
@@ -250,9 +268,7 @@ export function Home() {
         </Container>
 
         <Footer>
-          <FooterButton
-            onAddTask={handleAddTask}
-          />
+          <FooterButton onAddTask={handleAddTask} />
         </Footer>
       </BackgroundImage>
     </KeyBoard>

@@ -34,6 +34,7 @@ const DetailsTask = () => {
 
 const [tasks, setTasks] = useState<TaskProps[]>([]);
 
+//carregar tasks do armazenamento local
   const loadTasks = async () => {
     try {
       const storedTasks = await AsyncStorage.getItem("@tasks");
@@ -45,6 +46,7 @@ const [tasks, setTasks] = useState<TaskProps[]>([]);
     }
   };
 
+  //salvar mudaças no armazenamento local
   const saveTasks = async () => {
     try {
       await AsyncStorage.setItem("@tasks", JSON.stringify(tasks)); // Armazenar as tasks como string
@@ -53,13 +55,14 @@ const [tasks, setTasks] = useState<TaskProps[]>([]);
     }
   };
 
+  //carregar tasks ao montar tela
   useEffect(() => {
     loadTasks();
   }, []);
 
 const navigation = useNavigation();
   
-
+//trocar .deleted da tasks para verdadeiro
   const OnDelete = (titulo:string) => {
   for (let i = 0; i < tasks.length; i++) {
     if (tasks[i].title === titulo) {
@@ -70,14 +73,12 @@ const navigation = useNavigation();
   }
   
   };
-
-
-  
+  //pegando a task que foi enviada por props
   const route = useRoute();
   const { task } = route.params as { task: TaskProps }; 
     console.log(task);
 
-
+//trocar o modo de edição
   const handlePressEdit = () => {
     setIsEditable(!editable);
     if (editable) {
