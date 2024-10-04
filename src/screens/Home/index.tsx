@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FooterButton } from "../../components/FooterButton";
 import { Input } from "../../components/Input";
 import { Task } from "../../components/Task";
@@ -11,13 +11,16 @@ import {
 } from "./styles";
 import { Platform, Text, Image, FlatList, Button } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface TaskProps {
   title: string;
   description: string;
   completed: boolean;
   favorite: boolean;
+  id: number;
+  deleted: boolean;
 }
 
 export function Home() {
@@ -30,15 +33,44 @@ export function Home() {
   const [isCompletedExpanded, setIsCompletedExpanded] =
     useState<boolean>(false);
 
+  const navigation = useNavigation();
 
-const navigation = useNavigation();
+  useFocusEffect(
+    useCallback(() => {
+      loadTasks(); // Recarregar os dados quando a tela ganhar foco
+    }, [])
+  );
 
   const handleAddTask = (newTask: TaskProps) => {
     setTasks([...tasks, newTask]);
   };
 
+  const loadTasks = async () => {
+    try {
+      const storedTasks = await AsyncStorage.getItem("@tasks");
+      if (storedTasks) {
+        setTasks(JSON.parse(storedTasks)); // Converter para array novamente
+      }
+    } catch (error) {
+      console.log("Erro ao carregar tasks: ", error);
+    }
+  };
+
+  const saveTasks = async () => {
+    try {
+      await AsyncStorage.setItem("@tasks", JSON.stringify(tasks)); // Armazenar as tasks como string
+    } catch (error) {
+      console.log("Erro ao salvar tasks: ", error);
+    }
+  };
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
   useEffect(() => {
     OrganizarTask();
+    saveTasks();
   }, [tasks]);
 
   const OrganizarTask = () => {
@@ -46,9 +78,12 @@ const navigation = useNavigation();
     var arrPending: TaskProps[] = [];
 
     for (let index = 0; index < tasks.length; index++) {
-      if (tasks[index].completed == true) {
+      if (tasks[index].completed == true && tasks[index].deleted == false) {
         arrConclued.push(tasks[index]);
-      } else {
+      } else if (
+        tasks[index].completed == false &&
+        tasks[index].deleted == false
+      ) {
         arrPending.push(tasks[index]);
       }
     }
@@ -63,6 +98,7 @@ const navigation = useNavigation();
       }
     }
     OrganizarTask();
+    saveTasks();
   };
 
   const DesConcluir = (i: number) => {
@@ -72,6 +108,7 @@ const navigation = useNavigation();
       }
     }
     OrganizarTask();
+    saveTasks();
   };
 
   const toggleTasksVisibility = () => {
@@ -112,12 +149,13 @@ const navigation = useNavigation();
       task.description.toLowerCase().includes(searchText.toLowerCase())
   );
 
-
   const onTaskPress = (task: TaskProps) => {
     // Passando a tarefa com o tipo correto
-    navigation.navigate('Detalhes', { task });
+    navigation.navigate("Detalhes", { task });
   };
-  
+
+  // Dentro do componente Home
+
 
   return (
     <KeyBoard behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -158,11 +196,10 @@ const navigation = useNavigation();
                   title={item.title}
                   description={item.description}
                   onComplete={() => Concluir(index)}
-                  details={()=>onTaskPress(item)}
+                  details={() => onTaskPress(item)}
                   Handlefavorite={() => {
                     Favorito(index);
                   }}
-                  // onComplete={() => handleCompleteTask(item)}
                 />
               )}
               style={{ maxHeight: 300 }}
@@ -200,7 +237,7 @@ const navigation = useNavigation();
                   title={item.title}
                   description={item.description}
                   isCompleted={true}
-                  details={()=>onTaskPress(item)}
+                  details={() => onTaskPress(item)}
                   onComplete={() => {
                     DesConcluir(index);
                     console.log(item);
@@ -213,7 +250,9 @@ const navigation = useNavigation();
         </Container>
 
         <Footer>
-          <FooterButton onAddTask={handleAddTask} />
+          <FooterButton
+            onAddTask={handleAddTask}
+          />
         </Footer>
       </BackgroundImage>
     </KeyBoard>

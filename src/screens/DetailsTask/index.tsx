@@ -1,6 +1,6 @@
 import Feather from "@expo/vector-icons/Feather";
 import { Image, Text, TextInput, TouchableOpacity } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Contaiener,
   Descricao,
@@ -21,6 +21,9 @@ import {
 } from "../../components/FooterButton/styles";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { TaskProps } from "../../screens/Home";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
 
 const DetailsTask = () => {
   const [editable, setIsEditable] = useState(false);
@@ -29,8 +32,46 @@ const DetailsTask = () => {
     require("../../assets/img/DetailsTask/Editar.png")
   );
 
+const [tasks, setTasks] = useState<TaskProps[]>([]);
 
-  const navigation = useNavigation();
+  const loadTasks = async () => {
+    try {
+      const storedTasks = await AsyncStorage.getItem("@tasks");
+      if (storedTasks) {
+        setTasks(JSON.parse(storedTasks)); // Converter para array novamente
+      }
+    } catch (error) {
+      console.log("Erro ao carregar tasks: ", error);
+    }
+  };
+
+  const saveTasks = async () => {
+    try {
+      await AsyncStorage.setItem("@tasks", JSON.stringify(tasks)); // Armazenar as tasks como string
+    } catch (error) {
+      console.log("Erro ao salvar tasks: ", error);
+    }
+  };
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+const navigation = useNavigation();
+  
+
+  const OnDelete = (titulo:string) => {
+  for (let i = 0; i < tasks.length; i++) {
+    if (tasks[i].title === titulo) {
+      tasks[i].deleted = true;
+    }
+    saveTasks();
+    navigation.navigate("Home");
+  }
+  
+  };
+
+
   
   const route = useRoute();
   const { task } = route.params as { task: TaskProps }; 
@@ -45,6 +86,7 @@ const DetailsTask = () => {
       setImageSource(require("../../assets/img/DetailsTask/Concluir.png"));
     }
   };
+
 
   return (
     <Contaiener>
@@ -86,7 +128,7 @@ const DetailsTask = () => {
               <AddConcludeTitle>Concluir</AddConcludeTitle>
               <Feather name="plus-square" size={24} color="white" />
             </AddConclude>
-            <BinOff>
+            <BinOff onPress={()=>{OnDelete(task.title)}}>
               <BinOffTitle>Apagar</BinOffTitle>
               <Feather name="trash-2" size={24} color="white" />
             </BinOff>

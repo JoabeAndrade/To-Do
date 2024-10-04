@@ -19,6 +19,8 @@ interface AddTaskProps {
     description: string;
     completed: boolean;
     favorite: boolean;
+    id: number;
+    deleted: boolean;
   }) => void;
 }
 
@@ -28,7 +30,7 @@ export function AddTask({ closeModal, onAddTask }: AddTaskProps) {
 
   const handleAddTask = () => {
     if (title && description) {
-      onAddTask({ title, description, completed: false, favorite: false });
+      onAddTask({ title, description, completed: false, favorite: false, deleted: false, id: Math.random() });
       closeModal();
     }
   };

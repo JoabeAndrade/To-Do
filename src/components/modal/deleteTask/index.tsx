@@ -5,9 +5,13 @@ import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 
 interface DeleteTaskProps {
   onClose: () => void;
+  onDelete: () => void;
+  onReciclar: () => void;
+
+
 }
 
-export default function DeleteTask({onClose}:DeleteTaskProps){
+export default function DeleteTask({onClose, onDelete, onReciclar}:DeleteTaskProps){
   return(
     <Container>
       <Header>
@@ -15,11 +19,11 @@ export default function DeleteTask({onClose}:DeleteTaskProps){
         <TouchableOpacity onPress={onClose}><Feather style={{marginLeft: 'auto'}} name="x" size={24} color="black" ></Feather></TouchableOpacity>
       </Header>
       <Content>
-        <Recicle>
-          <TitleContent>Reciclar</TitleContent>
+        <Recicle onPress={onReciclar}>
+          <TitleContent >Reciclar</TitleContent>
           <FontAwesome name="recycle" size={24} color="white" />
         </Recicle>
-        <Delete>
+        <Delete onPress={onDelete}>
           <TitleContent>Deletar</TitleContent>
           <MaterialIcons name="delete" size={24} color="white"  />
         </Delete>

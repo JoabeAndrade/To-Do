@@ -10,17 +10,23 @@ import {
 } from "./styles";
 import { Modal, View, Animated, Easing } from "react-native";
 import { AddTask } from "../modal/addTask";
+import { TaskProps } from "../../screens/Home";
+import { useNavigation } from "@react-navigation/native";
+
 
 interface FooterButtonProps {
-  onAddTask: (task: {
-    title: string;
-    description: string;
-    completed: boolean;
-    favorite: boolean;
-  }) => void;
+  onAddTask: (task:TaskProps) => void;
+
+  
 }
 
 export function FooterButton({ onAddTask }: FooterButtonProps) {
+   
+
+
+
+  const navigation = useNavigation();
+
   const [modalVisible, setModalVisible] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
 
@@ -55,8 +61,8 @@ export function FooterButton({ onAddTask }: FooterButtonProps) {
           <AddConcludeTitle>Adicionar novo</AddConcludeTitle>
           <Feather name="plus-square" size={24} color="white" />
         </AddConclude>
-        <BinOff>
-          <BinOffTitle>Lixeira</BinOffTitle>
+        <BinOff onPress={()=>navigation.navigate("Lixeira")}>
+          <BinOffTitle >Lixeira</BinOffTitle>
           <Feather name="trash-2" size={24} color="white" />
         </BinOff>
       </Buttons>
