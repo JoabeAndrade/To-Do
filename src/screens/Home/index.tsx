@@ -10,8 +10,10 @@ import {
   ButtonExpanded,
 } from "./styles";
 import { Platform, Text, Image, FlatList, Button } from "react-native";
+import { TextInput } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
 
-interface TaskProps {
+export interface TaskProps {
   title: string;
   description: string;
   completed: boolean;
@@ -28,6 +30,9 @@ export function Home() {
   const [isCompletedExpanded, setIsCompletedExpanded] =
     useState<boolean>(false);
 
+
+const navigation = useNavigation();
+
   const handleAddTask = (newTask: TaskProps) => {
     setTasks([...tasks, newTask]);
   };
@@ -35,7 +40,6 @@ export function Home() {
   useEffect(() => {
     OrganizarTask();
   }, [tasks]);
-
 
   const OrganizarTask = () => {
     var arrConclued: TaskProps[] = [];
@@ -54,16 +58,17 @@ export function Home() {
 
   const Concluir = (i: number) => {
     for (let index = 0; index < tasks.length; index++) {
-      if(tasksPending[i].title == tasks[index].title){
-        tasks[index].completed=true;
+      if (tasksPending[i].title == tasks[index].title) {
+        tasks[index].completed = true;
       }
-    }    OrganizarTask();
+    }
+    OrganizarTask();
   };
 
   const DesConcluir = (i: number) => {
     for (let index = 0; index < tasks.length; index++) {
-      if(tasksConclued[i].title == tasks[index].title){
-        tasks[index].completed=false;
+      if (tasksConclued[i].title == tasks[index].title) {
+        tasks[index].completed = false;
       }
     }
     OrganizarTask();
@@ -82,20 +87,37 @@ export function Home() {
     var arrPending: TaskProps[] = [];
     var arrtask: TaskProps[] = [];
 
-    
     tasks[i].favorite = !tasks[i].favorite;
 
     arrPending = tasksPending;
     arrConclued = tasksConclued;
-    arrPending = arrPending.sort((a, b) => (a.favorite === b.favorite ? 0 : a.favorite ? -1 : 1));
+    arrPending = arrPending.sort((a, b) =>
+      a.favorite === b.favorite ? 0 : a.favorite ? -1 : 1
+    );
     setTasksPendding(tasksPending);
     arrtask = arrPending.concat(arrConclued);
     setTasks(arrtask);
-
-
-
-
   };
+
+  const [searchText, setSearchText] = useState<string>(""); // Novo
+  const filteredPendingTasks = tasksPending.filter(
+    (task) =>
+      task.title.toLowerCase().includes(searchText.toLowerCase()) ||
+      task.description.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const filteredConcludedTasks = tasksConclued.filter(
+    (task) =>
+      task.title.toLowerCase().includes(searchText.toLowerCase()) ||
+      task.description.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+
+  const onTaskPress = (task: TaskProps) => {
+    // Passando a tarefa com o tipo correto
+    navigation.navigate('Detalhes', { task });
+  };
+  
 
   return (
     <KeyBoard behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -103,7 +125,8 @@ export function Home() {
         source={require("../../assets/img/backgorund/image.jpg")}
       >
         <Container style={{ marginHorizontal: 10 }}>
-          <Input />
+          <Input value={searchText} onChangeText={setSearchText} />
+
           <ButtonExpanded
             onPress={toggleTasksVisibility}
             style={{
@@ -122,20 +145,20 @@ export function Home() {
               style={{ width: 40, height: 40 }}
             />
             <Text style={{ fontWeight: "bold", fontSize: 18, color: "#fff" }}>
-              Pendentes {tasksPending.length}
+              Pendentes {filteredPendingTasks.length}
             </Text>
           </ButtonExpanded>
 
           {isExpanded && (
             <FlatList
-              data={tasksPending}
+              data={filteredPendingTasks}
               keyExtractor={(item, index) => index.toString()}
               renderItem={({ item, index }) => (
                 <Task
                   title={item.title}
                   description={item.description}
                   onComplete={() => Concluir(index)}
-                  favorite={item.favorite}
+                  details={()=>onTaskPress(item)}
                   Handlefavorite={() => {
                     Favorito(index);
                   }}
@@ -164,20 +187,24 @@ export function Home() {
               style={{ width: 40, height: 40 }}
             />
             <Text style={{ fontWeight: "bold", fontSize: 18, color: "#fff" }}>
-              Concluídas {tasksConclued.length}
+              Concluídas {filteredConcludedTasks.length}
             </Text>
           </ButtonExpanded>
 
           {isCompletedExpanded && (
             <FlatList
-              data={tasksConclued}
+              data={filteredConcludedTasks}
               keyExtractor={(item, index) => index.toString()}
               renderItem={({ item, index }) => (
                 <Task
                   title={item.title}
                   description={item.description}
                   isCompleted={true}
-                  onComplete={() => {DesConcluir(index); console.log(item)}}
+                  details={()=>onTaskPress(item)}
+                  onComplete={() => {
+                    DesConcluir(index);
+                    console.log(item);
+                  }}
                 />
               )}
               style={{ maxHeight: 300 }}

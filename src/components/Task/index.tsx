@@ -9,13 +9,14 @@ import {
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
-interface TaskProps {
+ interface TaskProps {
   title: string;
   description: string;
   Handlefavorite?: () => void;
   favorite?: boolean;
   onComplete?: () => void;
   isCompleted?: boolean;
+  details: ()=>void;
 }
 
 export function Task({
@@ -24,6 +25,7 @@ export function Task({
   favorite,
   onComplete,
   Handlefavorite,
+  details,
   isCompleted = false,
 }: TaskProps) {
   return (
@@ -40,7 +42,7 @@ export function Task({
             color={isCompleted ? "white" : "black"}
           />
         </TouchableOpacity>
-        <TaskButtonStatus>
+        <TaskButtonStatus onPress={details}>
           <TaskTitle style={{ color: isCompleted ? "white" : "black" }}>
             {title}
           </TaskTitle>

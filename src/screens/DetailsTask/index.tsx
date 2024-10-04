@@ -19,6 +19,8 @@ import {
   BinOff,
   BinOffTitle,
 } from "../../components/FooterButton/styles";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { TaskProps } from "../../screens/Home";
 
 const DetailsTask = () => {
   const [editable, setIsEditable] = useState(false);
@@ -26,6 +28,14 @@ const DetailsTask = () => {
   const [imageSource, setImageSource] = useState(
     require("../../assets/img/DetailsTask/Editar.png")
   );
+
+
+  const navigation = useNavigation();
+  
+  const route = useRoute();
+  const { task } = route.params as { task: TaskProps }; 
+    console.log(task);
+
 
   const handlePressEdit = () => {
     setIsEditable(!editable);
@@ -41,7 +51,7 @@ const DetailsTask = () => {
       <Background source={require("../../assets/img/backgorund/image.jpg")}>
         <ContaienerTopo>
           <TouchableOpacity>
-            <Feather name="arrow-left" size={24} color="black" />
+            <Feather name="arrow-left" size={24} color="black" onPress={()=>navigation.goBack()}/>
           </TouchableOpacity>
           <TouchableOpacity onPress={handlePressEdit}>
             <Image
@@ -52,21 +62,21 @@ const DetailsTask = () => {
         </ContaienerTopo>
 
         <ContainerTitleTask>
-          <TitleTask>Título da Task</TitleTask>
+          <TitleTask>{task.title}</TitleTask>
         </ContainerTitleTask>
 
-        <TitleDescricao>Descrição:</TitleDescricao>
+        <TitleDescricao>Descrição</TitleDescricao>
 
         <ContainerDescricao>
           {editable ? (
             <TextInput
               style={{ fontSize: 15, color: "#000", width: "100%" }}
-              value={descricao}
-              onChangeText={setDescricao}
+              value={task.description}
+              // onChangeText={setDescricao}
               multiline={true}
             />
           ) : (
-            <Descricao>{descricao}</Descricao>
+            <Descricao>{task.description}</Descricao>
           )}
         </ContainerDescricao>
 
