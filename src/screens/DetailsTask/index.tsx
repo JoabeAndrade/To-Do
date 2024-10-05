@@ -1,6 +1,6 @@
 import Feather from "@expo/vector-icons/Feather";
 import { Image, Text, TextInput, TouchableOpacity } from "react-native";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Contaiener,
   Descricao,
@@ -19,22 +19,25 @@ import {
   BinOff,
   BinOffTitle,
 } from "../../components/FooterButton/styles";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import { TaskProps } from "../../screens/Home";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
-
 const DetailsTask = () => {
   const [editable, setIsEditable] = useState(false);
-  const [descricao, setDescricao] = useState("Lorem ipsum dolor sit amet...");
+  const [descricao, setDescricao] = useState("");
+
   const [imageSource, setImageSource] = useState(
     require("../../assets/img/DetailsTask/Editar.png")
   );
 
-const [tasks, setTasks] = useState<TaskProps[]>([]);
+  const [tasks, setTasks] = useState<TaskProps[]>([]);
 
-//carregar tasks do armazenamento local
+  //carregar tasks do armazenamento local
   const loadTasks = async () => {
     try {
       const storedTasks = await AsyncStorage.getItem("@tasks");
@@ -60,26 +63,50 @@ const [tasks, setTasks] = useState<TaskProps[]>([]);
     loadTasks();
   }, []);
 
-const navigation = useNavigation();
-  
-//trocar .deleted da tasks para verdadeiro
-  const OnDelete = (titulo:string) => {
-  for (let i = 0; i < tasks.length; i++) {
-    if (tasks[i].title === titulo) {
-      tasks[i].deleted = true;
+  const navigation = useNavigation();
+
+  //trocar .deleted da tasks para verdadeiro
+  const OnDelete = (titulo: string) => {
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].title === titulo) {
+        tasks[i].deleted = true;
+      }
+      saveTasks();
+      navigation.navigate("Home");
     }
-    saveTasks();
-    navigation.navigate("Home");
-  }
-  
+  };
+
+  const Concluir = (titulo: string) => {
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].title === titulo) {
+        tasks[i].completed = true;
+      }
+      saveTasks();
+      navigation.navigate("Home");
+    }
   };
   //pegando a task que foi enviada por props
   const route = useRoute();
-  const { task } = route.params as { task: TaskProps }; 
-    console.log(task);
+  const { task } = route.params as { task: TaskProps };
+  console.log(task);
 
-//trocar o modo de edição
+  useFocusEffect(
+    useCallback(() => {
+      setDescricao(task.description);
+    }, [])
+  );
+
+  //trocar o modo de edição
   const handlePressEdit = () => {
+    if (descricao !== task.description) {
+      for (let i = 0; i < tasks.length; i++) {
+        if (tasks[i].title === task.title) {
+          tasks[i].description = descricao;
+        }
+        saveTasks();
+      }
+    }
+
     setIsEditable(!editable);
     if (editable) {
       setImageSource(require("../../assets/img/DetailsTask/Editar.png"));
@@ -88,19 +115,20 @@ const navigation = useNavigation();
     }
   };
 
-
   return (
     <Contaiener>
       <Background source={require("../../assets/img/backgorund/image.jpg")}>
         <ContaienerTopo>
           <TouchableOpacity>
-            <Feather name="arrow-left" size={24} color="black" onPress={()=>navigation.goBack()}/>
+            <Feather
+              name="arrow-left"
+              size={24}
+              color="black"
+              onPress={() => navigation.goBack()}
+            />
           </TouchableOpacity>
           <TouchableOpacity onPress={handlePressEdit}>
-            <Image
-              source={imageSource}
-              style={{ width: 62, height: 62 }}
-            />
+            <Image source={imageSource} style={{ width: 62, height: 62 }} />
           </TouchableOpacity>
         </ContaienerTopo>
 
@@ -114,22 +142,35 @@ const navigation = useNavigation();
           {editable ? (
             <TextInput
               style={{ fontSize: 15, color: "#000", width: "100%" }}
-              value={task.description}
-              // onChangeText={setDescricao}
+              value={descricao}
+              onChangeText={setDescricao}
               multiline={true}
             />
           ) : (
-            <Descricao>{task.description}</Descricao>
+            <Descricao>{descricao}</Descricao>
           )}
         </ContainerDescricao>
 
         <ContainerFooter style={{ position: "absolute", bottom: 10 }}>
-          <Buttons>
-            <AddConclude>
-              <AddConcludeTitle>Concluir</AddConcludeTitle>
-              <Feather name="plus-square" size={24} color="white" />
-            </AddConclude>
-            <BinOff onPress={()=>{OnDelete(task.title)}}>
+          <Buttons  style={{
+        justifyContent: task.completed ? "center" : "space-between", // Muda o background se concluído
+      }}>
+            {!task.completed && (
+              <AddConclude
+                onPress={() => {
+                  Concluir(task.title);
+                }}
+              >
+                <AddConcludeTitle>Concluir</AddConcludeTitle>
+                <Feather name="plus-square" size={24} color="white" />
+              </AddConclude>
+            )}
+
+            <BinOff
+              onPress={() => {
+                OnDelete(task.title);
+              }}
+            >
               <BinOffTitle>Apagar</BinOffTitle>
               <Feather name="trash-2" size={24} color="white" />
             </BinOff>

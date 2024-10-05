@@ -9,10 +9,12 @@ import {
   Footer,
   ButtonExpanded,
 } from "./styles";
-import { Platform, Text, Image, FlatList, Button } from "react-native";
+import { Platform, Text, Image, FlatList, Button, Alert } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Yup from "yup";
+import { Animated } from "react-native";
 
 export interface TaskProps {
   title: string;
@@ -24,6 +26,53 @@ export interface TaskProps {
 }
 
 export function Home() {
+  const [heightAnimPending, setHeightAnimPending] = useState(
+    new Animated.Value(0)
+  );
+  const [heightAnimCompleted, setHeightAnimCompleted] = useState(
+    new Animated.Value(0)
+  );
+
+  const toggleTasksVisibility = () => {
+    // Antes de começar a animação, reseta o valor da altura para 0 se for recolher
+    if (isExpanded) {
+      Animated.timing(heightAnimPending, {
+        toValue: 0, // Recolhe a lista
+        duration: 300,
+        useNativeDriver: false,
+      }).start(() => {
+        setIsExpanded(false); // Só muda o estado após a animação terminar
+      });
+    } else {
+      setIsExpanded(true); // Expande primeiro
+      Animated.timing(heightAnimPending, {
+        toValue: 400, // Altura máxima ao expandir
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    }
+  };
+
+  const toggleCompletedTasksVisibility = () => {
+    // Reseta o valor de altura para 0 ao recolher
+    if (isCompletedExpanded) {
+      Animated.timing(heightAnimCompleted, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: false,
+      }).start(() => {
+        setIsCompletedExpanded(false);
+      });
+    } else {
+      setIsCompletedExpanded(true);
+      Animated.timing(heightAnimCompleted, {
+        toValue: 400,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    }
+  };
+
   const [tasks, setTasks] = useState<TaskProps[]>([]);
   const [tasksConclued, setTasksConclued] = useState<TaskProps[]>([]);
   const [tasksPending, setTasksPendding] = useState<TaskProps[]>([]);
@@ -38,15 +87,44 @@ export function Home() {
   //carrgando os dados toda vez que a tela ganha foco
   useFocusEffect(
     useCallback(() => {
-      loadTasks(); 
+      loadTasks();
     }, [])
   );
 
-  //função para adicionar uma nova task no final do array
-  const handleAddTask = (newTask: TaskProps) => {
-    setTasks([...tasks, newTask]);
-  };
+  // Define o esquema de validação
+  const taskSchema = Yup.object().shape({
+    title: Yup.string()
+      .min(2, "O título muito curto")
+      .max(60, "Titulo muito grande"),
+    description: Yup.string()
+      .min(6, "Descrição muito curta")
+      .max(200, "Descrição muito grande"),
+  });
 
+  //função para adicionar uma nova task no final do array
+  const handleAddTask = async (newTask: TaskProps) => {
+    try {
+      // Valida a nova tarefa
+      await taskSchema.validate(newTask);
+
+      // Verifica se a tarefa já existe
+      if (tasks.some((task) => task.title === newTask.title)) {
+        return Alert.alert(
+          "Task já existente, crie outra task com título diferente"
+        );
+      }
+
+      // Adiciona a nova tarefa
+      setTasks([...tasks, newTask]);
+    } catch (error) {
+      // Lida com erros de validação
+      if (error instanceof Error) {
+        Alert.alert(error.message); // Mostra a mensagem de erro do Yup
+      } else {
+        Alert.alert(String(error)); // Converte o erro para string se não for uma instância de Error
+      }
+    }
+  };
 
   //chamada para carregar as tasks do armazenamento local
   const loadTasks = async () => {
@@ -60,7 +138,6 @@ export function Home() {
     }
   };
 
-
   //função para salavar no armazenamento local
   const saveTasks = async () => {
     try {
@@ -70,12 +147,10 @@ export function Home() {
     }
   };
 
-
   //carregar as tasks ao montar tela
   useEffect(() => {
     loadTasks();
   }, []);
-
 
   //organizar tasks e salvar todas sempre que o array "tasks" mudar
   useEffect(() => {
@@ -83,10 +158,9 @@ export function Home() {
     saveTasks();
   }, [tasks]);
 
-
   //separa em subarray:
   // concluido = completed == ture && deleted == false
-  // pendente =  completed == false && delete == false 
+  // pendente =  completed == false && delete == false
   const OrganizarTask = () => {
     var arrConclued: TaskProps[] = [];
     var arrPending: TaskProps[] = [];
@@ -128,14 +202,21 @@ export function Home() {
   };
 
   //funcao para abrir modal
-  const toggleTasksVisibility = () => {
-    setIsExpanded((prev) => !prev);
-  };
+  // const toggleTasksVisibility = () => {
+  //   setIsExpanded((prev) => !prev);
+  //   if(isCompletedExpanded == true  && isExpanded ==false){
+  //     setIsCompletedExpanded(false)
+  //   }
+  // };
 
-  const toggleCompletedTasksVisibility = () => {
-    setIsCompletedExpanded((prev) => !prev);
-  };
-//funcao para ordenar array task de acordo com o favorito
+  // const toggleCompletedTasksVisibility = () => {
+  //   if(isExpanded == true && isCompletedExpanded ==false){
+  //     setIsExpanded(false)
+  //   }
+  //   setIsCompletedExpanded((prev) => !prev);
+  // };
+
+  //funcao para ordenar array task de acordo com o favorito
   const Favorito = (i: number) => {
     var arrConclued: TaskProps[] = [];
     var arrPending: TaskProps[] = [];
@@ -174,7 +255,6 @@ export function Home() {
     navigation.navigate("Detalhes", { task });
   };
 
-
   return (
     <KeyBoard behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <BackgroundImage
@@ -206,22 +286,22 @@ export function Home() {
           </ButtonExpanded>
 
           {isExpanded && (
-            <FlatList
-              data={filteredPendingTasks}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item, index }) => (
-                <Task
-                  title={item.title}
-                  description={item.description}
-                  onComplete={() => Concluir(index)}
-                  details={() => onTaskPress(item)}
-                  Handlefavorite={() => {
-                    Favorito(index);
-                  }}
-                />
-              )}
-              style={{ maxHeight: 300 }}
-            />
+            <Animated.View style={{ height: heightAnimPending }}>
+              <FlatList
+                data={filteredPendingTasks}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item, index }) => (
+                  <Task
+                    title={item.title}
+                    description={item.description}
+                    favorite={item.favorite}
+                    onComplete={() => Concluir(index)}
+                    details={() => onTaskPress(item)}
+                    Handlefavorite={() => Favorito(index)}
+                  />
+                )}
+              />
+            </Animated.View>
           )}
 
           <ButtonExpanded
@@ -247,23 +327,21 @@ export function Home() {
           </ButtonExpanded>
 
           {isCompletedExpanded && (
-            <FlatList
-              data={filteredConcludedTasks}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item, index }) => (
-                <Task
-                  title={item.title}
-                  description={item.description}
-                  isCompleted={true}
-                  details={() => onTaskPress(item)}
-                  onComplete={() => {
-                    DesConcluir(index);
-                    console.log(item);
-                  }}
-                />
-              )}
-              style={{ maxHeight: 300 }}
-            />
+            <Animated.View style={{ height: heightAnimCompleted }}>
+              <FlatList
+                data={filteredConcludedTasks}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item, index }) => (
+                  <Task
+                    title={item.title}
+                    description={item.description}
+                    isCompleted={true}
+                    details={() => onTaskPress(item)}
+                    onComplete={() => DesConcluir(index)}
+                  />
+                )}
+              />
+            </Animated.View>
           )}
         </Container>
 

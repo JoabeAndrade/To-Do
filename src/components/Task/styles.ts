@@ -6,7 +6,7 @@ export const ContainerTask = styled.View`
   border-top-left-radius: 15px;
   margin-top: 10px;
   width: 100%;
-  height: 60px;
+  height: 65px;
   background-color: #cbc1d3;
   elevation: 5;
   flex-direction: row;

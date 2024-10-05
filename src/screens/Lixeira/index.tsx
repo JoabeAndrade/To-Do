@@ -102,15 +102,25 @@ export function Lixeira() {
     setTasks(arrDeletar);
     saveTasksParam(arrDeletar); 
     OrganizarTask(); 
+    fecharModal();
   };
 
+
+  const ApagarTudo = () => {
+    const arrDeletar = tasks.filter((task) => task.deleted !== true);
+    setTasks(arrDeletar);
+    saveTasksParam(arrDeletar); 
+    OrganizarTask(); 
+    fecharModal();
+  };
+  
   //trocar item.deleted para false
   const reciclar = (item: string) => {
     for (let i = 0; i < tasks.length; i++) {
       if (tasks[i].title === item) {
         tasks[i].deleted = false;
       }
-
+      fecharModal();
       saveTasks();
       OrganizarTask();
     }
@@ -163,7 +173,7 @@ export function Lixeira() {
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item, index }) => (
             <ContainerTask>
-              <TaskTitle>{item.title}</TaskTitle>
+              <TaskTitle numberOfLines={1} style={{width:270}}>{item.title}</TaskTitle>
               <TouchableOpacity
                 onPress={() => {
                   setIdDelete(item.title);
@@ -202,7 +212,7 @@ export function Lixeira() {
           }}
         >
           {isDeleteAllModalVisible ? (
-            <DeleteAllTasks onClose={fecharModal} />
+            <DeleteAllTasks DeleteAll={ApagarTudo} onClose={fecharModal} />
           ) : (
             <DeleteTask
               onClose={fecharModal}

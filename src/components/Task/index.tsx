@@ -43,10 +43,10 @@ export function Task({
           />
         </TouchableOpacity>
         <TaskButtonStatus onPress={details}>
-          <TaskTitle style={{ color: isCompleted ? "white" : "black" }}>
+          <TaskTitle style={{ color: isCompleted ? "white" : "black",  }} numberOfLines={1}>
             {title}
           </TaskTitle>
-          <Text style={{ color: isCompleted ? "white" : "black" }}>
+          <Text style={{ color: isCompleted ? "white" : "black" }} numberOfLines={1}>
             {description}
           </Text>
         </TaskButtonStatus>
@@ -67,7 +67,11 @@ export function Task({
               size={35}
               color="black"
               onPress={Handlefavorite}
+              
             />
+
+          
+
           )}
         </TouchableOpacity>
       </Favorite>

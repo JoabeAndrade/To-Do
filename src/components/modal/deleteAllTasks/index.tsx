@@ -4,9 +4,10 @@ import { Feather } from '@expo/vector-icons';
 
 interface DeleteAllTasksProps {
   onClose: () => void; 
+  DeleteAll: () => void; 
 }
 
-export function DeleteAllTasks({onClose}: DeleteAllTasksProps){
+export function DeleteAllTasks({onClose, DeleteAll}: DeleteAllTasksProps){
   return(
     <Container>
       <Header>
@@ -17,7 +18,7 @@ export function DeleteAllTasks({onClose}: DeleteAllTasksProps){
         <Text>Tem certeza que deseja apagar tudo?</Text>
       </Content>
       <Footer>
-         <ActionButton><TextOption>Sim</TextOption></ActionButton>
+         <ActionButton onPress={DeleteAll}><TextOption>Sim</TextOption></ActionButton>
           <Text style={{padding: 5, fontSize: 24, fontWeight: 'bold', color:'#fff'}}>|</Text>
           <ActionButton onPress={onClose}><TextOption>Não</TextOption></ActionButton>          
       </Footer>
