@@ -26,6 +26,16 @@ export interface TaskProps {
 }
 
 export function Home() {
+
+
+  const [tasks, setTasks] = useState<TaskProps[]>([]);
+  const [tasksConclued, setTasksConclued] = useState<TaskProps[]>([]);
+  const [tasksPending, setTasksPendding] = useState<TaskProps[]>([]);
+
+  const [completedTasks, setCompletedTasks] = useState<TaskProps[]>([]);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [isCompletedExpanded, setIsCompletedExpanded] =
+    useState<boolean>(false);
   const [heightAnimPending, setHeightAnimPending] = useState(
     new Animated.Value(0)
   );
@@ -45,6 +55,7 @@ export function Home() {
       });
     } else {
       setIsExpanded(true); // Expande primeiro
+      setIsCompletedExpanded(false); // Fecha a lista de concluídas
       Animated.timing(heightAnimPending, {
         toValue: 400, // Altura máxima ao expandir
         duration: 300,
@@ -65,6 +76,7 @@ export function Home() {
       });
     } else {
       setIsCompletedExpanded(true);
+      setIsExpanded(false); // Fecha a lista de pendentes
       Animated.timing(heightAnimCompleted, {
         toValue: 400,
         duration: 300,
@@ -73,14 +85,7 @@ export function Home() {
     }
   };
 
-  const [tasks, setTasks] = useState<TaskProps[]>([]);
-  const [tasksConclued, setTasksConclued] = useState<TaskProps[]>([]);
-  const [tasksPending, setTasksPendding] = useState<TaskProps[]>([]);
-
-  const [completedTasks, setCompletedTasks] = useState<TaskProps[]>([]);
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
-  const [isCompletedExpanded, setIsCompletedExpanded] =
-    useState<boolean>(false);
+ 
 
   const navigation = useNavigation();
 
@@ -201,21 +206,7 @@ export function Home() {
     saveTasks();
   };
 
-  //funcao para abrir modal
-  // const toggleTasksVisibility = () => {
-  //   setIsExpanded((prev) => !prev);
-  //   if(isCompletedExpanded == true  && isExpanded ==false){
-  //     setIsCompletedExpanded(false)
-  //   }
-  // };
-
-  // const toggleCompletedTasksVisibility = () => {
-  //   if(isExpanded == true && isCompletedExpanded ==false){
-  //     setIsExpanded(false)
-  //   }
-  //   setIsCompletedExpanded((prev) => !prev);
-  // };
-
+ 
   //funcao para ordenar array task de acordo com o favorito
   const Favorito = (i: number) => {
     var arrConclued: TaskProps[] = [];
